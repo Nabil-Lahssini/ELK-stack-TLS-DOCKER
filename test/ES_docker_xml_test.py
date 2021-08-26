@@ -45,7 +45,7 @@ def test_runningcontainers():
         assert False
 
 def test_es_running():
-    for i in range(5):
+    for i in range(20):
         try:
             response = requests.get('https://localhost:9200', verify=False)
             break          
