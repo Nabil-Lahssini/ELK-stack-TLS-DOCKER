@@ -1,0 +1,43 @@
+instances:
+  - name: es01
+    dns:
+      - es01
+      - localhost
+    ip:
+      - 10.3.56.6 #ip VM 
+  - name: kib01
+    dns:
+      - kib01
+      - localhost
+    ip:
+      - 10.3.56.6
+  - name: metricbeat
+    dns:
+      - metricbeat
+      - localhost
+    ip:
+      - 10.3.56.6
+  - name: filebeat
+    dns:
+      - filebeat
+      - localhost
+    ip:
+      - 10.3.56.6
+  - name: rabbitmq
+    dns:
+      - rabbitmq
+      - localhost
+    ip:
+      - 10.3.56.6
+  - name: info_logging
+    dns:
+      - info_logging
+      - localhost
+    ip:
+      - 10.3.56.6
+  - name: heartbeat_logging
+    dns:
+      - heartbeat_logging
+      - localhost
+    ip:
+      - 10.3.56.6

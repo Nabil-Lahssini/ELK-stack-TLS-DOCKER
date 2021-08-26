@@ -1,0 +1,162 @@
+version: '3.5'
+networks:
+  elastic:
+    driver: bridge
+volumes:
+  elasticsearch-data:
+  my-log-volume:
+  certs:
+    driver: local
+services:
+  rabbitmq:
+    restart: unless-stopped
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - elastic
+
+  es01:
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: ${ELK_VERSION}
+    restart: unless-stopped
+    environment:
+      xpack.security.enabled: "true"
+      xpack.license.self_generated.type: "basic"
+      xpack.security.http.ssl.enabled: "true"
+      xpack.security.http.ssl.key: "$CERTS_DIR/es01/es01.key"
+      xpack.security.http.ssl.certificate_authorities: "$CERTS_DIR/ca/ca.crt"
+      xpack.security.http.ssl.certificate: "$CERTS_DIR/es01/es01.crt"
+      xpack.security.transport.ssl.enabled: "true"
+      xpack.security.transport.ssl.verification_mode: "certificate"
+      xpack.security.transport.ssl.certificate_authorities: "$CERTS_DIR/ca/ca.crt"
+      xpack.security.transport.ssl.certificate: "$CERTS_DIR/es01/es01.crt"
+      xpack.security.transport.ssl.key: "$CERTS_DIR/es01/es01.key"
+      ELASTIC_CLUSTER_NAME: ${ELASTIC_CLUSTER_NAME}
+      ELASTIC_NODE_NAME: ${ELASTIC_NODE_NAME}
+      ELASTIC_INIT_MASTER_NODE: ${ELASTIC_INIT_MASTER_NODE}
+      ELASTIC_DISCOVERY_SEEDS: ${ELASTIC_DISCOVERY_SEEDS}
+      ES_JAVA_OPTS: -Xmx${ELASTICSEARCH_HEAP} -Xms${ELASTICSEARCH_HEAP}
+      bootstrap.memory_lock: "true"
+    volumes:
+      - certs:$CERTS_DIR
+      - elasticsearch-data:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 200000
+        hard: 200000
+    networks:
+      - elastic
+
+  filebeat:
+    build:
+      context: filebeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    command: ./filebeat -e --strict.perms=false
+    volumes:
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - my-log-volume:/logs/
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      KIBANA_HOST_PORT: ${KIBANA_HOST}:${KIBANA_PORT}
+    networks:
+      - elastic
+  metricbeat:
+    build:
+      context: metricbeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    user: root
+    environment:
+      ELASTICSEARCH_HOST_PORT: ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      KIBANA_HOST_PORT: ${KIBANA_HOST}:${KIBANA_PORT}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    command:
+      - -e
+      - --strict.perms=false
+    volumes:
+      - type: bind
+        source: ./metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+        read_only: true
+      - type: bind
+        source: /
+        target: /hostfs
+        read_only: true
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /hostfs/sys/fs/cgroup
+        read_only: true
+      - type: bind
+        source: /proc
+        target: /hostfs/proc
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    networks:
+      - elastic
+  heartbeat_logging:
+    build:
+      context: heartbeat_logging/
+    restart: unless-stopped
+    environment:
+      QUEUE_MONITORING: ${QUEUE_HEARTBEAT}
+    volumes:
+      - my-log-volume:/logs/
+    networks:
+      - elastic
+      
+  info_logging:
+    build:
+      context: info_logging/
+    restart: unless-stopped
+    environment:
+      QUEUE_MONITORING: ${QUEUE_LOGGING}
+    volumes:
+      - my-log-volume:/logs/
+    networks:
+      - elastic
+
+
+
+  kib01:
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    volumes:
+      - certs:$CERTS_DIR
+      - ./kibana/config/:/usr/share/kibana/config:ro
+    environment:
+      ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES: $CERTS_DIR/ca/ca.crt
+      SERVER_SSL_ENABLED: "true"
+      SERVER_SSL_KEY: $CERTS_DIR/kib01/kib01.key
+      SERVER_SSL_CERTIFICATE: $CERTS_DIR/kib01/kib01.crt
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      KIBANA_HOST_PORT: ${KIBANA_HOST}:${KIBANA_PORT}
+    ports:
+      - "5601:5601"
+    networks:
+      - elastic

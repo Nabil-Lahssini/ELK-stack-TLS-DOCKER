@@ -1,0 +1,16 @@
+server.name: kib01
+server.host: "0.0.0.0"
+
+# Elasticsearch Connection
+elasticsearch.hosts: [ "https://${ELASTICSEARCH_HOST_PORT}" ]
+
+
+## X-Pack security credentials
+elasticsearch.username: "${ELASTIC_USERNAME}"
+elasticsearch.password: "${ELASTIC_PASSWORD}"
+
+xpack.encryptedSavedObjects:
+  encryptionKey: "min-32-byte-long-NEW-encryptions" 
+  keyRotation:
+    decryptionOnlyKeys: ["min-32-byte-long-OLD#1-encryption-key", "min-32-byte-long-OLD#2-encryption-key"] 
+

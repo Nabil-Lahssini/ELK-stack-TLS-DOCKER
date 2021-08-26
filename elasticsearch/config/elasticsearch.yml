@@ -1,0 +1,9 @@
+## Cluster Settings
+cluster.name: ${ELASTIC_CLUSTER_NAME}
+node.name: ${ELASTIC_NODE_NAME}
+
+network.host: 0.0.0.0
+discovery.seed_hosts: ${ELASTIC_DISCOVERY_SEEDS}
+cluster.initial_master_nodes: ${ELASTIC_INIT_MASTER_NODE}
+
+

@@ -1,0 +1,6 @@
+requests
+docker
+six
+pytest
+pika
+pyYaml
