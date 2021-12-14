@@ -1,4 +1,4 @@
-# ELK-stack on Docker (HTPPS, TLS)
+# ELK-stack on Docker (HTTPS, TLS)
 Elastic stack with RabbitMQ instance. Custom heartbeat service written in Python.
 
 ## Start
