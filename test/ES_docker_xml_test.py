@@ -3,7 +3,7 @@ import requests, docker, pytest, os, time
 def test_runningcontainers():
     client = docker.from_env()
     if client.containers.list(all=True):
-        assert len(client.containers.list(all=True)) >= 7
+        assert len(client.containers.list(all=True)) >= 4
     else:
         assert False
 
