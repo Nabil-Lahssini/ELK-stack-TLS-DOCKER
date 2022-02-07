@@ -7,7 +7,3 @@ def test_env_readable():
             assert f is not None        
     except IOError:
         assert False  
-
-def test_env_isExists():
-    x= os.stat('.env').st_size
-    assert x == 1157

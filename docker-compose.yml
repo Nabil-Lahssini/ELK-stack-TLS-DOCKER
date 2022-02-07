@@ -4,7 +4,6 @@ networks:
     driver: bridge
 volumes:
   elasticsearch-data:
-  my-log-volume:
   certs:
     driver: local
 services:
@@ -65,10 +64,11 @@ services:
       args:
         ELK_VERSION: $ELK_VERSION
     restart: unless-stopped
+    profiles:
+      - donotstart
     command: ./filebeat -e --strict.perms=false
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - my-log-volume:/logs/
     environment:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
@@ -114,30 +114,6 @@ services:
         read_only: true
     networks:
       - elastic
-  heartbeat_logging:
-    build:
-      context: heartbeat_logging/
-    restart: unless-stopped
-    environment:
-      QUEUE_MONITORING: ${QUEUE_HEARTBEAT}
-    volumes:
-      - my-log-volume:/logs/
-    networks:
-      - elastic
-      
-  info_logging:
-    build:
-      context: info_logging/
-    restart: unless-stopped
-    environment:
-      QUEUE_MONITORING: ${QUEUE_LOGGING}
-    volumes:
-      - my-log-volume:/logs/
-    networks:
-      - elastic
-
-
-
   kib01:
     build:
       context: kibana/

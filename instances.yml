@@ -29,15 +29,3 @@ instances:
       - localhost
     ip:
       - 0.0.0.0
-  - name: info_logging
-    dns:
-      - info_logging
-      - localhost
-    ip:
-      - 0.0.0.0
-  - name: heartbeat_logging
-    dns:
-      - heartbeat_logging
-      - localhost
-    ip:
-      - 0.0.0.0

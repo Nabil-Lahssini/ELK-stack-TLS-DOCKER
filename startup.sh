@@ -13,7 +13,7 @@ if [ -f "$file" ] ; then
 fi
 cp .env.example .env
 cd init
-python3 initialise.py 
+python3 initialize.py 
 cd ..
 sed -i '$d' .env
 sed -i '$d' .env

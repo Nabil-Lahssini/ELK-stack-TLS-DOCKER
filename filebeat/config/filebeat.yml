@@ -1,38 +1,3 @@
-filebeat.inputs:
-
-
-
-- type: log
-  enabled: true
-  paths:
-    - ./heartbeat.log
-    - /usr/src/app/heartbeat.log
-    - /logs/heartbeat.log
-  # Change to true to enable this input configuration.
-  processors:
-    - dissect:
-        tokenizer: "%{agent.name|string} - %{timestamp|string} - %{memory|double} - %{cpu_load|double} - %{agent.code|string}"
-        field: "message"
-        target_prefix: "heartbeat"
-
-    # Paths that should be crawled and fetched. Glob based paths.
-- type: log
-  enabled: true
-  paths:
-    - ./logging.log
-    - /usr/src/app/logging.log
-    - /logs/logging.log
-  # Change to true to enable this input configuration.
-  processors:
-    - dissect:
-        tokenizer: "%{code|string} - %{origin|string} - %{timestamp|string} - %{objectUUID|string} - %{objectSourceId|string} - %{objectOrigin|string} - %{description|string}"
-        field: "message"
-        target_prefix: "logging"
-
-setup.template.settings:
-  index.number_of_shards: 3
-
-
 output.elasticsearch:
   # Array of hosts to connect to.
   hosts: [ "https://${ELASTICSEARCH_HOST_PORT}" ]

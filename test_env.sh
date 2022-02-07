@@ -8,7 +8,7 @@ rm ./instances.yml
 cp ./inst_test.yml ./instances.yml
 cp .env.example .env
 cd init
-python initialise.py 
+python initialize.py 
 cd ..
 sed -i '$d' .env
 sed -i '$d' .env
