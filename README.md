@@ -1,5 +1,5 @@
 # ELK-stack on Docker (HTTPS, TLS)
-Elastic stack with RabbitMQ instance.
+Elastic stack.
 
 ## Start
 To start and configure the service for the first time:
